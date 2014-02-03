@@ -1,6 +1,6 @@
 # Vagrant Solr box
 
-Box to get a Solr environment quickly up and running in a VM. If you plan to modify the Solr configuration copy the content of this repo to a new repo.
+Vagrant Solr box to get a Drupal Solr environment quickly up and running in a VM. This fork adds the Drupal Search API module (https://drupal.org/project/search_api_solr) Solr configuration for Apache Solr 4.6.
 
 ## Running the box
 
