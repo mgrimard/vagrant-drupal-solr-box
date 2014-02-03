@@ -31,6 +31,11 @@ class must-have {
     require => Exec["apt-get update 2"],
   }
 
+  # install drush to download drupal modules
+  # package { 'drush':
+  #   ensure => installed,
+  # }  
+
   exec { "accept_license":
     command => "echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections && echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections",
     cwd => "/home/vagrant",
@@ -40,6 +45,31 @@ class must-have {
     before => Package["oracle-java7-installer"],
     logoutput => true,
   }
+
+  #exec { 'solr-download-drupal-module':
+  # command => 'drush dl search_api_solr --destination=/home/vagrant/search_api_solr',
+  #  user => "vagrant",
+  #  cwd => '/home/vagrant',
+  #  creates => '/home/vagrant/search_api_solr',
+  #  require => Package['drush'],
+  #}
+
+  file { "/vagrant":
+    ensure => directory,
+    before => Exec["solr-download-drupal-module"]
+  }
+
+  exec { 'solr-download-drupal-module':
+   command => 'wget http://ftp.drupal.org/files/projects/search_api_solr-7.x-1.4.tar.gz && tar xzf search_api_solr-7.x-1.4.tar.gz',
+    user => "vagrant",
+    cwd => '/vagrant',
+    path => "/usr/bin/:/bin/",
+    creates => '/vagrant/search_api_solr',
+    require => Exec["download_solr"],
+  }
+
+  $solr_schema_source = 'file:///vagrant/search_api_solr/solr-conf/4.x/schema.xml'
+  $solr_config_source = 'file:///vagrant/search_api_solr/solr-conf/4.x/solrconfig.xml'  
 
   file { "/vagrant/solr":
     ensure => directory,
@@ -65,6 +95,19 @@ class must-have {
     target => "/etc/init/solr.conf",
     require => File["/etc/init/solr.conf"],
   }
+
+  # Add Drupal config files
+
+  file { '/vagrant/solr/example/solr/collection1/conf/schema.xml':
+    source  => $solr_schema_source,
+    require => Exec['solr-download-drupal-module'],
+    # notify  => Service['tomcat6'],
+  }
+  file { '/vagrant/solr/example/solr/collection1/conf/solrconfig.xml':
+    source  => $solr_config_source,
+    require => Exec['solr-download-drupal-module'],
+    # notify  => Service['tomcat6'],
+  }  
 
   service { "solr":
     enable => true,

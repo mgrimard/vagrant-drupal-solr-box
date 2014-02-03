@@ -5,5 +5,6 @@ Box to get a Solr environment quickly up and running in a VM. If you plan to mod
 ## Running the box
 
 1. Install [Vagrant](http://www.vagrantup.com/)
-2. `vagrant up`
-3. Open http://localhost:8983/solr/#/ (on host)
+2. git clone --recursive [THIS REPOSITORY]
+3. `vagrant up`
+4. Open http://localhost:8983/solr/#/ (on host)
